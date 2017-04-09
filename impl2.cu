@@ -193,6 +193,7 @@ void impl2_outcore(vector<initial_vertex> * graph, int blockSize, int blockNum, 
 	}
 
 	unsigned int *hostDistanceCur = new unsigned int[graph->size()];
+	unsigned int *hostTPA = new unsigned int[warp_num];
 
 	cudaMalloc((void**)&distance_cur, (size_t)sizeof(unsigned int)*(graph->size()));
 	cudaMalloc((void**)&distance_prev, (size_t)sizeof(unsigned int)*(graph->size()));
@@ -256,6 +257,11 @@ void impl2_outcore(vector<initial_vertex> * graph, int blockSize, int blockNum, 
 		    cudaMemcpy(temp, to_process_arr + warp_num - 1, sizeof(unsigned int), cudaMemcpyDeviceToHost);
 		    to_process_num += *temp;
 
+		    cudaMemcpy(hostTPA, to_process_arr, sizeof(unsigned int)*warp_num, cudaMemcpyDeviceToHost);
+		    for(int i = 0 ; i < warp_num ; i++){
+			cout << hostTPA[i] << endl;
+		    }
+		    cout << "SPLIT" << endl;
 		    cudaMalloc((void**)&T, (size_t)sizeof(edge_node)*to_process_num);
 		    
 		    getT<<<blockNum, blockSize>>>(L, edge_num, pred, to_process_arr, T);
